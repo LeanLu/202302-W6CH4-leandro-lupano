@@ -1,7 +1,26 @@
 import http from 'http';
 import url, { URLSearchParams } from 'url';
 
-const PORT = process.env.PORT || 3200;
+// TEMPORAL: const PORT = process.env.PORT || 3200;
+
+import { program } from 'commander';
+
+let PORT = 3600;
+
+const portFunction = () => {
+  program.option('-p, --port <char>');
+
+  program.parse();
+
+  const options = program.opts();
+
+  if (options.port) {
+    console.log('Port chosen: ' + options.port);
+    PORT = options.port;
+  }
+};
+
+portFunction();
 
 const server = http.createServer((request, response) => {
   if (!request.url) {
@@ -25,6 +44,10 @@ const server = http.createServer((request, response) => {
 
   const a = Number(urlParams.get('a'));
   const b = Number(urlParams.get('b'));
+
+  if (!a || !b) {
+    server.emit('error', new Error('Invalid url'));
+  }
 
   const sum = a + b;
   const rest = a - b;
@@ -55,7 +78,7 @@ const server = http.createServer((request, response) => {
 });
 
 server.on('listening', () =>
-  console.log('Listening in http://localhost: ' + PORT)
+  console.log(`Listening in http://localhost:${PORT}/calculator?a=3&b=6`)
 );
 
 server.listen(PORT);
